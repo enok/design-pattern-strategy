@@ -9,6 +9,8 @@
 
 Strategy is a behavioral design pattern: it puts a family of interchangeable algorithms behind one interface so the code that needs one can use, and even swap, it at runtime without being edited. This repo is one of a series, `enok/design-pattern-<pattern>`, with one repository per pattern. The study source is *Head First Design Patterns*, 2nd edition, by Eric Freeman and Elisabeth Robson (O'Reilly, 2020). All text and code here are original.
 
+> **Read the full write-up on Medium:** [What a Checkout’s Shipping Options Taught Me About the Strategy Pattern](https://medium.com/@enok.jesus/what-a-checkouts-shipping-options-taught-me-about-the-strategy-pattern-85e04c2691d5)
+
 ## What's inside
 
 | Step | Content | Where |
