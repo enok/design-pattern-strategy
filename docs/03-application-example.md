@@ -55,7 +55,7 @@ checkout asks the strategy for the cost and does not know which rule answers.
 | ConcreteStrategy | `StandardShipping` | 599 cents; free when `subtotalCents >= 10_000` |
 | ConcreteStrategy | `ExpressShipping` | `1_499 + 200 x ceil(weightGrams / 1_000)`; weight 0 gives 1_499 |
 | ConcreteStrategy | `StorePickup` | Always 0 |
-| Ad-hoc strategy | Flat-rate function/lambda | Always 300; shows that a strategy is just behavior |
+| Ad-hoc strategy | Flat-rate lambda | Always 300; shows that a strategy is just behavior |
 | Context | `Checkout` | Holds a strategy by composition; `total(order)` = subtotal + strategy cost; `setShippingStrategy(s)` swaps it at runtime |
 | Client | The demo | Chooses and swaps strategies |
 | Data | `Order` | Immutable value object with `subtotalCents` and `weightGrams` |
@@ -64,18 +64,17 @@ checkout asks the strategy for the cost and does not know which rule answers.
 
 - **Integer cents everywhere.** No floating-point money. Only the demo formats cents as
   `units.cc` for display.
-- **Validation.** `Order` rejects a negative `subtotalCents` or `weightGrams` using each
-  language's idiomatic argument error. `Checkout` rejects a missing (null/None/undefined)
-  strategy both at construction and on swap.
+- **Validation.** `Order` rejects a negative `subtotalCents` or `weightGrams` with an
+  `IllegalArgumentException`. `Checkout` rejects a `null` strategy with a
+  `NullPointerException`, both at construction and on swap.
 - **Open/closed.** `ShippingStrategy` is deliberately not sealed. A new rule is a new
-  class (or function) passed in; `Checkout` is never edited.
-- **Lambdas as strategies.** Because the contract is a single operation, a function can
-  stand in for a class: a functional interface in Java, a Protocol/callable in Python,
-  a function in JavaScript and a function type in TypeScript.
+  class (or lambda) passed in; `Checkout` is never edited.
+- **Lambdas as strategies.** Because the contract is a single operation, a lambda can
+  stand in for a class: `ShippingStrategy` is a `@FunctionalInterface`.
 
 ## Golden table
 
-Every language's tests assert all 16 totals (subtotal + shipping, in cents).
+The JUnit tests assert all 16 totals (subtotal + shipping, in cents).
 
 | Order | subtotalCents | weightGrams | Standard | Express | Pickup | Flat 300 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -90,8 +89,7 @@ the null-strategy rejections, and both negative-value rejections.
 
 ## Expected demo output
 
-Each demo prices order A with all four strategies, then swaps at runtime. The Python demo
-labels the last strategy `Flat rate (function)` instead of `Flat rate (lambda)`.
+The demo prices order A with all four strategies, then swaps at runtime.
 
 ```text
 Order: subtotal=49.90 weight=1200g
@@ -104,13 +102,11 @@ Swapped at runtime: Standard shipping -> Express shipping | total 55.89 -> 68.89
 
 ## Where is the code?
 
-Each folder implements the same model and passes the same golden table.
+The Java 25 implementation is in [`../java/`](../java/) and passes the golden table above. Component by component, the source is also on one page: [05-code-by-component.md](05-code-by-component.md).
 
-| Language | Folder | Test, then run |
-| --- | --- | --- |
-| Java 25 | [`../java/`](../java/) | `mvn -q verify` then `java -cp target/classes io.github.enok.patterns.strategy.Demo` |
-| Python 3 | [`../python/`](../python/) | From `python/` with `PYTHONPATH=src`: `python -m unittest discover -s tests -t .` then `python -m checkout_strategy` |
-| JavaScript (ES2026) | [`../javascript/`](../javascript/) | `node --test` then `node src/demo.js` |
-| TypeScript 7 | [`../typescript/`](../typescript/) | `npm ci && npm test` then `npm run demo` |
+From inside `java/` (needs JDK 25 and Maven 3.9.x):
 
-Run each command from inside its own folder.
+```text
+mvn -q verify
+java -cp target/classes io.github.enok.patterns.strategy.Demo
+```

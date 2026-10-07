@@ -47,7 +47,7 @@ At runtime the context calls the strategy; the strategy does the work and return
 
 **Encapsulate what varies.** Find the part of the code that changes most often or differs between cases, and pull it out into its own unit, away from the part that stays stable. The stable code stops being touched when the variable part changes. In Strategy, the varying part is the algorithm.
 
-**Program to an interface (a supertype), not to an implementation.** The context declares its collaborator by the abstract type, so it works with anything that honors the contract. Concrete classes can appear, disappear, or be written years later by someone else, and the context compiles untouched. "Interface" here means the contract in general: a Java interface, a Python protocol, a TypeScript type, or a function signature.
+**Program to an interface (a supertype), not to an implementation.** The context declares its collaborator by the abstract type, so it works with anything that honors the contract. Concrete classes can appear, disappear, or be written years later by someone else, and the context compiles untouched. "Interface" here means the contract in general: in Java, an `interface` (often a `@FunctionalInterface`) or an abstract type.
 
 **Favor composition over inheritance.** Instead of getting behavior by being a subclass, an object gets it by holding another object (a has-a relationship). Composition is more flexible: you can assemble behavior from parts, reuse a part in unrelated classes, and exchange it while the program runs. Inheritance is still useful; it is just a heavier, less reversible commitment, so do not reach for it first.
 
@@ -63,7 +63,7 @@ At runtime the context calls the strategy; the strategy does the work and return
 - There are only two stable variants that will not grow; a plain `if` is clearer.
 - The variants differ in data, not in behavior; a lookup table or a parameter suffices.
 - The client cannot reasonably choose between strategies, for example because the differences are internal details you would be forcing it to learn.
-- Your language has first-class functions and the algorithm is a single stateless operation: a function parameter is Strategy without the ceremony (see the comparison below).
+- The algorithm is a single stateless operation: a lambda or method reference passed where a functional interface is expected is Strategy without the ceremony (see the comparison below).
 
 ## Consequences
 
@@ -86,14 +86,11 @@ At runtime the context calls the strategy; the strategy does the work and return
 | **Strategy** | An algorithm | The client, from outside | Strategies are independent and unaware of each other; the context is passive about the choice. |
 | **State** | Behavior that depends on the object's current condition | The state objects themselves, by triggering transitions | Structure is similar, but states know about each other and move the context from one to the next. Strategy has no built-in transitions. |
 | **Template Method** | Individual steps inside a fixed algorithm skeleton | Fixed at compile time by subclassing | Uses inheritance, so the variation cannot be swapped on a live object. Strategy replaces the whole algorithm through composition. |
-| **Plain function or lambda** | A single operation | The caller | Same idea with less syntax. Prefer it when the strategy is one stateless function; use classes when strategies carry configuration, several operations, or a name worth documenting. |
+| **Lambda or method reference** | A single operation | The caller | Same idea with less syntax. Prefer it when the strategy is one stateless operation; use classes when strategies carry configuration, several operations, or a name worth documenting. |
 
 ## Seen in real libraries
 
-- **Java:** `java.util.Comparator` passed to `List.sort` or `Collections.sort`. The sorting routine is the context and each comparator is a strategy.
-- **Python:** the `key=` argument of `sorted()`, `min()` and `max()` selects how elements are ordered.
-- **JavaScript:** the compare function given to `Array.prototype.sort`.
-- **Passport.js:** each authentication method (local, OAuth providers, and so on) is a strategy registered with `passport.use`.
+- **JDK:** `java.util.Comparator` passed to `List.sort` or `Collections.sort`. The sorting routine is the context and each comparator is a strategy.
 - **Spring Framework:** `PasswordEncoder` implementations (bcrypt, Argon2, and others) are interchangeable hashing strategies.
 
 ## Related reading
