@@ -93,7 +93,7 @@ How these three, SOLID and the architecture principles map onto this repo's code
 ## Seen in real libraries
 
 - **JDK:** `java.util.Comparator` passed to `List.sort` or `Collections.sort`. The sorting routine is the context and each comparator is a strategy.
-- **Spring Framework:** `PasswordEncoder` implementations (bcrypt, Argon2, and others) are interchangeable hashing strategies.
+- **Spring Security:** `PasswordEncoder` implementations (bcrypt, Argon2, and others) are interchangeable hashing strategies.
 
 ## Related reading
 
