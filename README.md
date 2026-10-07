@@ -19,6 +19,7 @@ Strategy is a behavioral design pattern: it puts a family of interchangeable alg
 | 3 | Application example | [`docs/03-application-example.md`](docs/03-application-example.md) |
 | 4 | Diagram of the example | [`docs/04-example-diagram.md`](docs/04-example-diagram.md) |
 | 5 | Java 25 code, as a project and component by component | [`java/`](java/) and [`docs/05-code-by-component.md`](docs/05-code-by-component.md) |
+| 6 | Design principles behind the pattern (SOLID, object-oriented, architecture) | [`docs/06-design-principles.md`](docs/06-design-principles.md) |
 | 9 | Architecture perspective | [`docs/09-architecture-perspective.md`](docs/09-architecture-perspective.md) |
 | 10 | Best YouTube video for the Java example | [`docs/10-videos.md`](docs/10-videos.md) |
 
