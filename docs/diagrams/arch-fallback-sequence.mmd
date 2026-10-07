@@ -1,12 +1,23 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Inter, Arial, sans-serif"}}%%
 sequenceDiagram
+    autonumber
     participant U as Use case
     participant R as Registry
     participant N as Candidate strategy
     participant F as Fallback strategy
-    U->>R: resolve(tenant, region)
-    R-->>U: candidate strategy
-    U->>N: cost(order)
-    N--xU: timeout
-    U->>F: cost(order)
-    F-->>U: 300 cents
-    U->>U: log strategy=fallback reason=timeout
+    rect rgb(245,247,250)
+        Note over U,R: 1 · select
+        U->>R: resolve(tenant, region)
+        R-->>U: candidate strategy
+    end
+    rect rgb(249,197,192)
+        Note over U,N: 2 · candidate fails
+        U->>+N: cost(order)
+        N--x-U: timeout
+    end
+    rect rgb(221,239,219)
+        Note over U,F: 3 · fall back
+        U->>+F: cost(order)
+        F-->>-U: 300 cents
+        Note over U,F: log strategy=fallback reason=timeout
+    end

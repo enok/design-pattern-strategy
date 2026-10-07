@@ -17,6 +17,7 @@ Strategy is a behavioral design pattern: it puts a family of interchangeable alg
 | 2 | Generic diagram | [`docs/02-generic-diagram.md`](docs/02-generic-diagram.md) |
 | 3 | Application example | [`docs/03-application-example.md`](docs/03-application-example.md) |
 | 4 | Diagram of the example | [`docs/04-example-diagram.md`](docs/04-example-diagram.md) |
+| 5-8 | Code by component (all four languages side by side, component by component) | [`docs/05-code-by-component.md`](docs/05-code-by-component.md) |
 | 5 | Java 25 code | [`java/`](java/) |
 | 6 | Python 3 code | [`python/`](python/) |
 | 7 | JavaScript (ECMAScript 2026) code | [`javascript/`](javascript/) |
@@ -27,25 +28,33 @@ Strategy is a behavioral design pattern: it puts a family of interchangeable alg
 ## The pattern at a glance
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Inter, Arial, sans-serif"}}%%
 classDiagram
-    direction LR
-    class Client
+    direction TB
+    class Client {
+        -context : Context
+        +main() void
+    }
     class Context {
         -strategy : Strategy
-        +setStrategy(strategy : Strategy) void
+        +setStrategy(s) void
         +doWork(input) Result
     }
     class Strategy {
         <<interface>>
+        +name : String
         +execute(input) Result
     }
     class ConcreteStrategyA {
+        -settings : Settings
         +execute(input) Result
     }
     class ConcreteStrategyB {
+        -settings : Settings
         +execute(input) Result
     }
     class ConcreteStrategyC {
+        -settings : Settings
         +execute(input) Result
     }
     Client ..> Context : uses
@@ -54,11 +63,17 @@ classDiagram
     Strategy <|.. ConcreteStrategyA : implements
     Strategy <|.. ConcreteStrategyB : implements
     Strategy <|.. ConcreteStrategyC : implements
+    style Client fill:#FFFFFF,stroke:#1B1F23,stroke-width:2px
+    style Context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px
+    style Strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px
+    style ConcreteStrategyA fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px
+    style ConcreteStrategyB fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px
+    style ConcreteStrategyC fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px
 ```
 
-- **Strategy:** the common interface for one varying algorithm.
-- **ConcreteStrategy:** one implementation of that algorithm; add a rule by adding a class.
-- **Context:** holds a strategy by composition and delegates to it; the client chooses which one it gets.
+- **Strategy (light orange):** the common interface for one varying algorithm.
+- **ConcreteStrategy (orange):** one implementation of that algorithm; add a rule by adding a class.
+- **Context (green):** holds a strategy by composition and delegates to it; the **client (white)** chooses which one it gets.
 
 ## The example in one minute
 
@@ -95,7 +110,7 @@ mvn -q verify
 java -cp target/classes io.github.enok.patterns.strategy.Demo
 ```
 
-**Python** (`python/`)
+**Python** (`python/`; the Strategy `Protocol` and `FunctionStrategy` live in `shipping_strategy.py`, the concrete strategies in `strategies.py`)
 
 ```bash
 cd python

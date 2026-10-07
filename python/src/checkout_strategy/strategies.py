@@ -1,34 +1,17 @@
-"""Strategy role, concrete strategies and the function adapter."""
+"""ConcreteStrategy role: the interchangeable shipping algorithms."""
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Protocol, override
+from typing import override
 
 from .order import Order
+from .shipping_strategy import ShippingStrategy
 
 FREE_SHIPPING_THRESHOLD_CENTS = 10_000
 STANDARD_FLAT_CENTS = 599
 EXPRESS_BASE_CENTS = 1_499
 EXPRESS_PER_KG_CENTS = 200
 GRAMS_PER_KG = 1_000
-
-
-class ShippingStrategy(Protocol):
-    """Strategy role: the interchangeable algorithm interface.
-
-    Structural typing keeps the abstraction open: any object with a ``name``
-    and a ``cost(order) -> int`` (cents) is a strategy, no inheritance needed.
-    """
-
-    @property
-    def name(self) -> str:
-        """Human-readable label."""
-        ...
-
-    def cost(self, order: Order) -> int:
-        """Return the shipping cost in integer cents."""
-        ...
 
 
 class StandardShipping(ShippingStrategy):
@@ -62,23 +45,3 @@ class StorePickup(ShippingStrategy):
     @override
     def cost(self, order: Order) -> int:
         return 0
-
-
-class FunctionStrategy:
-    """Adapter: turns a plain ``Callable[[Order], int]`` into a strategy.
-
-    Shows that a strategy is just behavior; no class hierarchy required.
-    """
-
-    def __init__(self, name: str, fn: Callable[[Order], int]) -> None:
-        if not callable(fn):
-            raise TypeError("fn must be callable")
-        self._name = name
-        self._fn = fn
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    def cost(self, order: Order) -> int:
-        return self._fn(order)

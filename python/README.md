@@ -7,9 +7,9 @@ Python 3.13 implementation (runs on 3.12+, stdlib only) of the shared example in
 
 | Role | Where |
 | --- | --- |
-| Strategy | `ShippingStrategy` (`typing.Protocol`) in `src/checkout_strategy/strategies.py` |
+| Strategy | `ShippingStrategy` (`typing.Protocol`) in `src/checkout_strategy/shipping_strategy.py` |
 | ConcreteStrategy | `StandardShipping`, `ExpressShipping`, `StorePickup` in `strategies.py` |
-| Ad-hoc strategy / adapter | `FunctionStrategy(name, fn)` in `strategies.py` |
+| Ad-hoc strategy / adapter | `FunctionStrategy(name, fn)` in `shipping_strategy.py` |
 | Context | `Checkout` in `checkout.py` |
 | Value object | `Order` in `order.py` |
 | Client | `demo.py` (`render()`) and `__main__.py` |

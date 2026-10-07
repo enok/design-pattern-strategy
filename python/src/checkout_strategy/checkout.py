@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .order import Order
-from .strategies import ShippingStrategy
+from .shipping_strategy import ShippingStrategy
 
 
 class Checkout:

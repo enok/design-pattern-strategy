@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" fill="#1B1F23">
+<title>Strategy behind a port (hexagonal architecture)</title>
+<desc>Hexagonal architecture: the Checkout use case (Context) and Order value object in the application core; the ShippingRatePort driven port (the example's ShippingStrategy) on the right edge is implemented by Carrier A, Carrier B and Store pickup adapters; the composition root selects the adapter at startup.</desc>
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1 L10 5 L0 9 Z" fill="#3D4650"/></marker>
+<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="16" markerHeight="16" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#FFFFFF" stroke="#3D4650" stroke-width="1.8" stroke-linejoin="round"/></marker>
+</defs>
+<style>.t{font-size:28px;font-weight:600}.s{font-size:22px}.l{font-size:22px;paint-order:stroke;stroke:#fff;stroke-width:7px;stroke-linejoin:round}.h{font-size:24px;font-weight:700;fill:#3D4650}</style>
+<rect width="1200" height="900" fill="#FFFFFF"/>
+<text x="600" y="44" text-anchor="middle" font-size="36" font-weight="700">Strategy behind a port (hexagonal architecture)</text>
+<polygon points="560.0,107.0 839.7,268.5 839.7,591.5 560.0,753.0 280.3,591.5 280.3,268.5" fill="#F5F7FA" stroke="#7A8794" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="560.0,211.0 749.7,320.5 749.7,539.5 560.0,649.0 370.3,539.5 370.3,320.5" fill="#DDEFDB" stroke="#2F6B35" stroke-width="3" stroke-linejoin="round"/>
+<text x="560" y="203" text-anchor="middle" class="h" letter-spacing="1" style="font-size:22px">PORTS &amp; ADAPTERS</text>
+<text x="560" y="318" text-anchor="middle" class="h" fill="#2F6B35" style="fill:#2F6B35">Application core</text>
+<text x="100" y="96" text-anchor="middle" class="h">Driving side</text>
+<rect x="5" y="400" width="190" height="96" rx="14" fill="#FFFFFF" stroke="#1B1F23" stroke-width="3"/>
+<text x="100.0" y="440.3" text-anchor="middle" class="t">REST</text>
+<text x="100.0" y="472.3" text-anchor="middle" class="t">controller</text>
+<rect x="5" y="590" width="190" height="96" rx="14" fill="#FFFFFF" stroke="#1B1F23" stroke-width="3"/>
+<text x="100.0" y="646.3" text-anchor="middle" class="t">CLI / tests</text>
+<path d="M195 448 L289 420" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M195 638 L289 456" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="240" y="418" text-anchor="middle" class="l">calls</text>
+<text x="290" y="560" text-anchor="middle" class="l">calls</text>
+<rect x="295" y="365" width="150" height="130" rx="14" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3"/>
+<text x="370.0" y="408.3" text-anchor="middle" class="t">Checkout</text>
+<text x="370.0" y="440.3" text-anchor="middle" class="t">Port</text>
+<text x="370.0" y="469.3" text-anchor="middle" class="s">driving port</text>
+<rect x="675" y="365" width="150" height="130" rx="14" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3"/>
+<text x="750.0" y="408.3" text-anchor="middle" class="t">Shipping</text>
+<text x="750.0" y="440.3" text-anchor="middle" class="t">RatePort</text>
+<text x="750.0" y="469.3" text-anchor="middle" class="s">driven port</text>
+<rect x="485" y="350" width="150" height="116" rx="14" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3"/>
+<text x="560.0" y="386.3" text-anchor="middle" class="t">Checkout</text>
+<text x="560.0" y="418.3" text-anchor="middle" class="t">use case</text>
+<text x="560.0" y="447.3" text-anchor="middle" class="s">Context</text>
+<rect x="485" y="512" width="150" height="84" rx="14" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3"/>
+<text x="560.0" y="548.3" text-anchor="middle" class="t">Order</text>
+<text x="560.0" y="577.3" text-anchor="middle" class="s">value object</text>
+<path d="M445 430 L479 430" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M635 430 L669 430" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M560 466 L560 506" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="574" y="494" class="l">passes</text>
+<rect x="960" y="125" width="230" height="96" rx="14" fill="#F7B267" stroke="#B35C0F" stroke-width="3"/>
+<text x="1075.0" y="165.3" text-anchor="middle" class="t">Carrier A</text>
+<text x="1075.0" y="197.3" text-anchor="middle" class="t">adapter</text>
+<rect x="960" y="382" width="230" height="96" rx="14" fill="#F7B267" stroke="#B35C0F" stroke-width="3"/>
+<text x="1075.0" y="422.3" text-anchor="middle" class="t">Carrier B</text>
+<text x="1075.0" y="454.3" text-anchor="middle" class="t">adapter</text>
+<rect x="960" y="639" width="230" height="96" rx="14" fill="#F7B267" stroke="#B35C0F" stroke-width="3"/>
+<text x="1075.0" y="679.3" text-anchor="middle" class="t">Store pickup</text>
+<text x="1075.0" y="711.3" text-anchor="middle" class="t">adapter</text>
+<path d="M890 173 L890 687" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" fill="none"/>
+<path d="M890 173 L960 173" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" fill="none"/>
+<path d="M890 687 L960 687" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" fill="none"/>
+<path d="M960 430 L890 430" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" fill="none"/>
+<path d="M890 430 L826 430" fill="none" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#tri)"/>
+<rect x="827" y="274" width="132" height="30" rx="5" fill="#FFFFFF"/><text x="893" y="297" text-anchor="middle" class="s">implements</text>
+<text x="1075" y="96" text-anchor="middle" class="h">Driven side</text>
+<rect x="960" y="268" width="230" height="64" rx="14" fill="#FFFFFF" stroke="#3D4650" stroke-width="3" stroke-dasharray="8 6"/>
+<text x="1075.0" y="308.3" text-anchor="middle" class="t">Carrier A API</text>
+<rect x="960" y="525" width="230" height="64" rx="14" fill="#FFFFFF" stroke="#3D4650" stroke-width="3" stroke-dasharray="8 6"/>
+<text x="1075.0" y="565.3" text-anchor="middle" class="t">Carrier B API</text>
+<rect x="960" y="790" width="230" height="90" rx="14" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3"/>
+<text x="1075.0" y="827.3" text-anchor="middle" class="t">Store</text>
+<text x="1075.0" y="859.3" text-anchor="middle" class="t">locations</text>
+<path d="M1075 221 L1075 262" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="1089" y="249.5" class="l">HTTP</text>
+<path d="M1075 478 L1075 519" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="1089" y="506.5" class="l">HTTP</text>
+<path d="M1075 735 L1075 784" fill="none" stroke="#3D4650" stroke-width="3" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="1089" y="767.5" class="l">reads</text>
+<rect x="410" y="800" width="300" height="80" rx="14" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3"/>
+<text x="560.0" y="834.3" text-anchor="middle" class="t">Composition root</text>
+<text x="560.0" y="863.3" text-anchor="middle" class="s">wires the object graph</text>
+<rect x="40" y="805" width="230" height="70" rx="14" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3"/>
+<text x="155.0" y="848.3" text-anchor="middle" class="t">Configuration</text>
+<path d="M270 840 L404 840" fill="none" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="337" y="828" text-anchor="middle" class="l">reads</text>
+<path d="M710 840 L750 840 L750 501" fill="none" stroke="#3D4650" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#ah)" stroke-linejoin="round"/>
+<text x="768" y="728" class="l">selects adapter</text><text x="768" y="756" class="l">at startup</text>
+<rect x="8" y="112" width="270" height="270" rx="12" fill="#FFFFFF" stroke="#9AA5B1" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="22" y="124" width="40" height="24" rx="6" fill="#B8E2B4" stroke="#2F6B35" stroke-width="2.5"/>
+<text x="76" y="144" class="s">Context</text>
+<rect x="22" y="156" width="40" height="24" rx="6" fill="#FDDCB5" stroke="#B35C0F" stroke-width="2.5"/>
+<text x="76" y="176" class="s">Port</text>
+<rect x="22" y="188" width="40" height="24" rx="6" fill="#F7B267" stroke="#B35C0F" stroke-width="2.5"/>
+<text x="76" y="208" class="s">Adapter</text>
+<rect x="22" y="220" width="40" height="24" rx="6" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="2.5"/>
+<text x="76" y="240" class="s">Data / config</text>
+<rect x="22" y="252" width="40" height="24" rx="6" fill="#FFFFFF" stroke="#3D4650" stroke-width="2.5" stroke-dasharray="6 4"/>
+<text x="76" y="272" class="s">External system</text>
+<text x="22" y="316" class="s" font-weight="600">ShippingRatePort =</text><text x="22" y="344" class="s">the example's</text><text x="22" y="372" class="s">ShippingStrategy</text>
+</svg>
