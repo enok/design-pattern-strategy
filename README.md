@@ -8,7 +8,7 @@ Strategy is a behavioral design pattern: it puts a family of interchangeable alg
 
 > **Read the full write-up on Medium:** [What a Checkout’s Shipping Options Taught Me About the Strategy Pattern](https://medium.com/@enok.jesus/what-a-checkouts-shipping-options-taught-me-about-the-strategy-pattern-85e04c2691d5)
 >
-> **Discuss it on LinkedIn:** [the post sharing this study](https://www.linkedin.com/feed/update/urn:li:share:7513445485840343040/)
+> **Discuss it on LinkedIn:** [the post sharing this study](https://www.linkedin.com/feed/update/urn:li:share:7513681151757299712/)
 
 ## What's inside
 
