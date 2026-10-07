@@ -1,18 +1,25 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 sequenceDiagram
+    autonumber
     actor Client
+    participant Ctx as Context
     participant A as ConcreteStrategyA
     participant B as ConcreteStrategyB
-    participant Ctx as Context
-    Client->>A: create
-    Client->>Ctx: create with strategy A
-    Client->>Ctx: doWork(input)
-    Ctx->>A: execute(input)
-    A-->>Ctx: result
-    Ctx-->>Client: result
-    Client->>B: create
-    Client->>Ctx: setStrategy(B)
-    Note over Client,Ctx: The behavior changed at runtime, Context code untouched
-    Client->>Ctx: doWork(input)
-    Ctx->>B: execute(input)
-    B-->>Ctx: result
-    Ctx-->>Client: result
+    rect rgb(245,247,250)
+        Note over Client,B: 1 · wire up and run with A
+        Client->>A: create
+        Client->>Ctx: create with strategy A
+        Client->>+Ctx: doWork(input)
+        Ctx->>A: execute(input)
+        A-->>Ctx: result
+        Ctx-->>-Client: result
+    end
+    rect rgb(245,247,250)
+        Note over Client,B: 2 · swap at runtime
+        Client->>B: create
+        Client->>Ctx: setStrategy(B)
+        Client->>+Ctx: doWork(input)
+        Ctx->>B: execute(input)
+        B-->>Ctx: result
+        Ctx-->>-Client: result
+    end

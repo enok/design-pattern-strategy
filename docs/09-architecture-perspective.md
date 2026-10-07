@@ -6,18 +6,7 @@ The class-level pattern ([01](01-pattern-explanation.md)) swaps an algorithm ins
 
 In a hexagonal layout the business core defines the interfaces it needs and the outside world supplies implementations. `ShippingStrategy` from the example becomes a `ShippingRatePort`; each carrier gets an adapter that translates the core's `Order` into that carrier's wire format and back. The checkout use case plays the Context and never learns which carrier it is talking to.
 
-```mermaid
-flowchart TB
-    UI[Checkout UI] --> UC[Checkout use case]
-    CFG[Configuration] --> WIRE[Composition root]
-    WIRE -->|injects one adapter| UC
-    UC --> PORT{{ShippingRatePort}}
-    PORT -.implemented by.-> AA[Carrier A adapter]
-    PORT -.implemented by.-> AB[Carrier B adapter]
-    PORT -.implemented by.-> AP[Store pickup adapter]
-    AA --> XA[Carrier A API]
-    AB --> XB[Carrier B API]
-```
+![Strategy behind a port: the Checkout core owns the ShippingStrategy port; carrier adapters plug in from outside](diagrams/arch-hexagonal.svg)
 
 *Figure 1. The use case depends only on the port; the composition root injects the adapter chosen by configuration.*
 
@@ -35,18 +24,34 @@ flowchart TB
 Choosing the strategy at startup is the simplest case. Real systems often choose per request: per tenant, per region, or per experiment. A strategy registry maps stable keys to implementations; the DI container fills it, and a small policy layer decides which key applies.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 flowchart TB
-    REG[Registry gets tenant and region] --> FLAG{"Flag on for tenant?"}
-    FLAG -->|yes| NEW[Candidate strategy v2]
-    FLAG -->|no| RULE{"Region rule matches?"}
-    RULE -->|yes| REGIONAL[Regional strategy]
-    RULE -->|no| DFLT[Default strategy]
-    NEW --> RUN[Run and log strategy]
+    REG[("Registry lookup")] --> FLAG{"Flag on?"}
+    FLAG -->|"no"| RULE{"Region rule?"}
+    FLAG -->|"yes"| NEW("Candidate strategy v2")
+    RULE -->|"yes"| REGIONAL("Regional strategy")
+    RULE -->|"no"| DFLT("Default strategy")
+    NEW --> RUN("Run and log strategy")
     REGIONAL --> RUN
     DFLT --> RUN
-    RUN -->|ok| OUT[Shipping cost]
-    RUN -->|error or timeout| FALLBACK["Fallback strategy: flat rate"]
-    FALLBACK --> OUT
+    RUN -->|"ok"| OUT(["Shipping cost"])
+    RUN -.->|"error or timeout"| FALLBACK("Fallback: flat rate")
+    FALLBACK -.-> OUT
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef adhoc fill:#FFF1D6,stroke:#B35C0F,stroke-width:2.5px,stroke-dasharray:6 4,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    classDef client fill:#FFFFFF,stroke:#1B1F23,stroke-width:2.5px,color:#1B1F23
+    class REG data;
+    class FLAG,RULE strategy;
+    class NEW adhoc;
+    class REGIONAL,DFLT concrete;
+    class RUN context;
+    class OUT client;
+    class FALLBACK danger;
 ```
 
 *Figure 2. Selection order: feature flag first, then region rule, then the default. Any failure drops to a fallback.*
@@ -59,18 +64,29 @@ flowchart TB
 **Safe rollout and fallback.** Ship the new strategy dark, enable it for an internal tenant, then widen the percentage. Always register a boring fallback (here, flat rate) that cannot fail because it makes no remote calls.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 sequenceDiagram
+    autonumber
     participant U as Use case
     participant R as Registry
     participant N as Candidate strategy
     participant F as Fallback strategy
-    U->>R: resolve(tenant, region)
-    R-->>U: candidate strategy
-    U->>N: cost(order)
-    N--xU: timeout
-    U->>F: cost(order)
-    F-->>U: 300 cents
-    U->>U: log strategy=fallback reason=timeout
+    rect rgb(245,247,250)
+        Note over U,R: 1 · select
+        U->>R: resolve(tenant, region)
+        R-->>U: candidate strategy
+    end
+    rect rgb(249,197,192)
+        Note over U,N: 2 · candidate fails
+        U->>+N: cost(order)
+        N--x-U: timeout
+    end
+    rect rgb(221,239,219)
+        Note over U,F: 3 · fall back
+        U->>+F: cost(order)
+        F-->>-U: 300 cents
+        Note over U,F: log strategy=fallback reason=timeout
+    end
 ```
 
 *Figure 3. A candidate that times out is replaced by the fallback, and the reason is recorded.*
@@ -84,21 +100,30 @@ sequenceDiagram
 When rate calculation needs live carrier data, the strategies may sit behind a dedicated rate-quote service. Each carrier strategy calls its upstream, the service fans out in parallel with a deadline, drops failed or slow answers, and returns the cheapest valid quote.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 sequenceDiagram
+    autonumber
     participant C as Checkout
     participant Q as Rate-quote service
     participant A as Carrier A strategy
     participant B as Carrier B strategy
-    C->>Q: quote(order)
-    par fan out with 800 ms deadline
-        Q->>A: price(order)
-        A-->>Q: 1899 cents
-    and
-        Q->>B: price(order)
-        Note over Q,B: breaker open, call skipped
+    C->>+Q: quote(order)
+    rect rgb(245,247,250)
+        Note over Q,B: 1 · fan out with 800 ms deadline
+        par Carrier A
+            Q->>A: price(order)
+            A-->>Q: 1899 cents
+        and Carrier B
+            rect rgb(249,197,192)
+                Note over Q,B: breaker open, call skipped
+                Q-xB: price(order) skipped
+            end
+        end
     end
-    Q->>Q: pick cheapest valid quote
-    Q-->>C: carrier A, 1899 cents, strategies tried: A, B(skipped)
+    rect rgb(245,247,250)
+        Note over Q,B: 2 · pick cheapest valid quote
+    end
+    Q-->>-C: carrier A, 1899 cents, strategies tried: A, B(skipped)
 ```
 
 *Figure 4. Fan-out with a shared deadline; the open breaker for Carrier B skips the call instead of waiting.*
@@ -120,21 +145,31 @@ sequenceDiagram
 Pricing, ranking, and recommendation pipelines apply the pattern naturally: the pipeline stage is the Context, and each model version is a strategy behind a common `predict(features)` contract. An experiment framework assigns each request or user to a bucket, which picks the strategy, and the chosen model id is stored with the outcome.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 flowchart TB
-    subgraph SERVE[Serving]
-        direction LR
-        DATA[Feature data] --> ASSIGN[Experiment assignment]
-        ASSIGN -->|bucket 0| MA[Pricing model v1]
-        ASSIGN -->|bucket 1| MB[Pricing model v2]
+    subgraph LOOP["Pricing experiment loop"]
+        direction TB
+        DATA[("Feature data")] --> ASSIGN("Experiment assignment")
+        ASSIGN -->|"bucket 0"| MA("Pricing model v1")
+        ASSIGN -->|"bucket 1"| MB("Pricing model v2")
+        MA --> PRED("Prediction and model id")
+        MB --> PRED
+        PRED --> LOG[("Metrics store")]
+        LOG --> EVAL("Experiment analysis")
+        EVAL -.->|"promote or roll back"| ASSIGN
     end
-    subgraph LEARN[Measuring]
-        direction LR
-        PRED[Prediction and model id] --> LOG[Metrics store]
-        LOG --> EVAL[Experiment analysis]
-    end
-    MA --> PRED
-    MB --> PRED
-    EVAL -->|promote or roll back| ASSIGN
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef adhoc fill:#FFF1D6,stroke:#B35C0F,stroke-width:2.5px,stroke-dasharray:6 4,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    classDef client fill:#FFFFFF,stroke:#1B1F23,stroke-width:2.5px,color:#1B1F23
+    class ASSIGN,PRED,EVAL context;
+    class MA,MB adhoc;
+    class DATA,LOG data;
+    style LOOP fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
 ```
 
 *Figure 5. Assignment picks the model; the logged model id lets analysis attribute results to a strategy.*

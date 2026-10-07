@@ -108,6 +108,8 @@ jobs:
         with:
           python-version: '3.13'
       - name: Docs checker unit tests
-        run: python -m unittest discover -s .github/scripts -p "test_check_docs.py" -v
-      - name: Check links and diagram drift
+        run: python -m unittest discover -s .github/scripts -p "test_*.py" -v
+      - name: Code-by-component page is up to date
+        run: python .github/scripts/gen_code_by_component.py --check
+      - name: Check links, diagram drift and code drift
         run: python .github/scripts/check_docs.py

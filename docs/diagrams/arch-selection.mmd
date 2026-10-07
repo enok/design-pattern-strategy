@@ -1,12 +1,28 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 flowchart TB
-    REG[Registry gets tenant and region] --> FLAG{"Flag on for tenant?"}
-    FLAG -->|yes| NEW[Candidate strategy v2]
-    FLAG -->|no| RULE{"Region rule matches?"}
-    RULE -->|yes| REGIONAL[Regional strategy]
-    RULE -->|no| DFLT[Default strategy]
-    NEW --> RUN[Run and log strategy]
+    REG[("Registry lookup")] --> FLAG{"Flag on?"}
+    FLAG -->|"no"| RULE{"Region rule?"}
+    FLAG -->|"yes"| NEW("Candidate strategy v2")
+    RULE -->|"yes"| REGIONAL("Regional strategy")
+    RULE -->|"no"| DFLT("Default strategy")
+    NEW --> RUN("Run and log strategy")
     REGIONAL --> RUN
     DFLT --> RUN
-    RUN -->|ok| OUT[Shipping cost]
-    RUN -->|error or timeout| FALLBACK["Fallback strategy: flat rate"]
-    FALLBACK --> OUT
+    RUN -->|"ok"| OUT(["Shipping cost"])
+    RUN -.->|"error or timeout"| FALLBACK("Fallback: flat rate")
+    FALLBACK -.-> OUT
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef adhoc fill:#FFF1D6,stroke:#B35C0F,stroke-width:2.5px,stroke-dasharray:6 4,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    classDef client fill:#FFFFFF,stroke:#1B1F23,stroke-width:2.5px,color:#1B1F23
+    class REG data;
+    class FLAG,RULE strategy;
+    class NEW adhoc;
+    class REGIONAL,DFLT concrete;
+    class RUN context;
+    class OUT client;
+    class FALLBACK danger;

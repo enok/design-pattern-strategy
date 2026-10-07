@@ -105,8 +105,50 @@ def check_diagrams(root: Path) -> list[str]:
     return problems
 
 
+SOURCE_RE = re.compile(r"^\s*<!--\s*source:\s*(\S+?)\s*-->\s*$")
+
+
+def _lf(s: str) -> str:
+    s = s.replace("\r\n", "\n")
+    return s[:-1] if s.endswith("\n") else s
+
+
+def check_sources(root: Path) -> list[str]:
+    """Fenced blocks right after a `<!-- source: path -->` line must equal that file."""
+    problems = []
+    for md in markdown_files(root):
+        rel = md.relative_to(root)
+        lines = md.read_text(encoding="utf-8").replace("\r\n", "\n").split("\n")
+        i = 0
+        while i < len(lines):
+            m = SOURCE_RE.match(lines[i])
+            i += 1
+            if not m:
+                continue
+            path, marker_no = m.group(1), i
+            fm = FENCE_RE.match(lines[i]) if i < len(lines) else None
+            if not fm:
+                problems.append(f"{rel}:{marker_no}: source marker not followed by a fenced block -> {path}")
+                continue
+            fence, body, j = fm.group(2), [], i + 1
+            while j < len(lines):
+                cm = FENCE_RE.match(lines[j])
+                if cm and cm.group(2)[0] == fence[0] and len(cm.group(2)) >= len(fence) \
+                        and lines[j].strip() == cm.group(2):
+                    break
+                body.append(lines[j])
+                j += 1
+            i = j + 1
+            src = root / path
+            if not src.is_file():
+                problems.append(f"{rel}:{marker_no}: missing source -> {path}")
+            elif _lf(src.read_text(encoding="utf-8")) != _lf("\n".join(body)):
+                problems.append(f"{rel}:{marker_no}: code drift -> {path}")
+    return problems
+
+
 def run(root: Path) -> int:
-    problems = check_links(root) + check_diagrams(root)
+    problems = check_links(root) + check_diagrams(root) + check_sources(root)
     if problems:
         print(f"docs check FAILED: {len(problems)} problem(s)")
         for p in problems:
@@ -118,7 +160,7 @@ def run(root: Path) -> int:
 
 def self_test() -> int:
     here = Path(__file__).resolve().parent
-    suite = unittest.defaultTestLoader.discover(str(here), pattern="test_check_docs.py")
+    suite = unittest.defaultTestLoader.discover(str(here), pattern="test_*.py")
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     return 0 if result.wasSuccessful() and result.testsRun > 0 else 1
 

@@ -4,13 +4,8 @@ from __future__ import annotations
 
 from .checkout import Checkout
 from .order import Order
-from .strategies import (
-    ExpressShipping,
-    FunctionStrategy,
-    ShippingStrategy,
-    StandardShipping,
-    StorePickup,
-)
+from .shipping_strategy import FunctionStrategy, ShippingStrategy
+from .strategies import ExpressShipping, StandardShipping, StorePickup
 
 
 def money(cents: int) -> str:

@@ -1,15 +1,25 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
 flowchart TB
-    subgraph SERVE[Serving]
-        direction LR
-        DATA[Feature data] --> ASSIGN[Experiment assignment]
-        ASSIGN -->|bucket 0| MA[Pricing model v1]
-        ASSIGN -->|bucket 1| MB[Pricing model v2]
+    subgraph LOOP["Pricing experiment loop"]
+        direction TB
+        DATA[("Feature data")] --> ASSIGN("Experiment assignment")
+        ASSIGN -->|"bucket 0"| MA("Pricing model v1")
+        ASSIGN -->|"bucket 1"| MB("Pricing model v2")
+        MA --> PRED("Prediction and model id")
+        MB --> PRED
+        PRED --> LOG[("Metrics store")]
+        LOG --> EVAL("Experiment analysis")
+        EVAL -.->|"promote or roll back"| ASSIGN
     end
-    subgraph LEARN[Measuring]
-        direction LR
-        PRED[Prediction and model id] --> LOG[Metrics store]
-        LOG --> EVAL[Experiment analysis]
-    end
-    MA --> PRED
-    MB --> PRED
-    EVAL -->|promote or roll back| ASSIGN
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef adhoc fill:#FFF1D6,stroke:#B35C0F,stroke-width:2.5px,stroke-dasharray:6 4,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    classDef client fill:#FFFFFF,stroke:#1B1F23,stroke-width:2.5px,color:#1B1F23
+    class ASSIGN,PRED,EVAL context;
+    class MA,MB adhoc;
+    class DATA,LOG data;
+    style LOOP fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
