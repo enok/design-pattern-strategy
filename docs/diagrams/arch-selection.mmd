@@ -1,0 +1,12 @@
+flowchart TB
+    REG[Registry gets tenant and region] --> FLAG{"Flag on for tenant?"}
+    FLAG -->|yes| NEW[Candidate strategy v2]
+    FLAG -->|no| RULE{"Region rule matches?"}
+    RULE -->|yes| REGIONAL[Regional strategy]
+    RULE -->|no| DFLT[Default strategy]
+    NEW --> RUN[Run and log strategy]
+    REGIONAL --> RUN
+    DFLT --> RUN
+    RUN -->|ok| OUT[Shipping cost]
+    RUN -->|error or timeout| FALLBACK["Fallback strategy: flat rate"]
+    FALLBACK --> OUT

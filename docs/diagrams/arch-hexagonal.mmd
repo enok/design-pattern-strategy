@@ -1,0 +1,10 @@
+flowchart TB
+    UI[Checkout UI] --> UC[Checkout use case]
+    CFG[Configuration] --> WIRE[Composition root]
+    WIRE -->|injects one adapter| UC
+    UC --> PORT{{ShippingRatePort}}
+    PORT -.implemented by.-> AA[Carrier A adapter]
+    PORT -.implemented by.-> AB[Carrier B adapter]
+    PORT -.implemented by.-> AP[Store pickup adapter]
+    AA --> XA[Carrier A API]
+    AB --> XB[Carrier B API]

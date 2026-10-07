@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant Demo as Client (Demo)
+    participant C as Checkout
+    participant S as StandardShipping
+    participant E as ExpressShipping
+    Note over Demo: Order A = subtotal 4990, weight 1200
+    Demo->>C: new Checkout(StandardShipping)
+    Demo->>C: total(orderA)
+    C->>S: cost(orderA)
+    S-->>C: 599
+    C-->>Demo: 5589 (4990 + 599)
+    Demo->>C: setShippingStrategy(ExpressShipping)
+    Note over C,E: same Checkout object, new behavior
+    Demo->>C: total(orderA)
+    C->>E: cost(orderA)
+    E-->>C: 1899 (1499 + 200 x 2)
+    C-->>Demo: 6889 (4990 + 1899)

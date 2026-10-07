@@ -1,0 +1,18 @@
+sequenceDiagram
+    actor Client
+    participant A as ConcreteStrategyA
+    participant B as ConcreteStrategyB
+    participant Ctx as Context
+    Client->>A: create
+    Client->>Ctx: create with strategy A
+    Client->>Ctx: doWork(input)
+    Ctx->>A: execute(input)
+    A-->>Ctx: result
+    Ctx-->>Client: result
+    Client->>B: create
+    Client->>Ctx: setStrategy(B)
+    Note over Client,Ctx: The behavior changed at runtime, Context code untouched
+    Client->>Ctx: doWork(input)
+    Ctx->>B: execute(input)
+    B-->>Ctx: result
+    Ctx-->>Client: result
