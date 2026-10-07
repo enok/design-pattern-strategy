@@ -1,5 +1,9 @@
 # Strategy at the Architecture Level
 
+![Four architecture-level applications of Strategy: behind a port, runtime policy selection, across service boundaries, pluggable pipeline steps.](diagrams/arch-applications.svg)
+
+*Overview of the architecture-level applications below. Also available as a [PNG](diagrams/arch-applications.png).*
+
 The class-level pattern ([01](01-pattern-explanation.md)) swaps an algorithm inside one object. The same idea scales up: a stable core asks a question, and one of several interchangeable answers is chosen elsewhere. This page follows the checkout shipping-cost example ([03](03-application-example.md), [04](04-example-diagram.md)) through four architectural settings. The vocabulary changes (port, adapter, registry, service), but the shape does not: one stable contract, many implementations, a selector outside the caller.
 
 ## 1. Strategy behind a port (hexagonal / clean architecture)

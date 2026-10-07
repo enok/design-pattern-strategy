@@ -17,7 +17,7 @@ import unittest
 from pathlib import Path
 from urllib.parse import unquote
 
-SKIP_DIRS = {".git", "node_modules", "target", ".venv", "__pycache__", "dist"}
+SKIP_DIRS = {".git", "target", "__pycache__"}
 LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)"
                      r"|!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)")
 FENCE_RE = re.compile(r"^(\s*)(`{3,}|~{3,})")

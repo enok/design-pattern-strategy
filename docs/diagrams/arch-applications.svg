@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-labelledby="t d" font-family="Arial, Helvetica, sans-serif" fill="#1B1F23">
+<title id="t">Strategy beyond the class diagram</title>
+<desc id="d">Four architecture-level applications of the Strategy pattern, one panel each. 1: behind a port, a hexagonal Checkout core owns a port that Carrier A, Carrier B and a test fake implement; config injects the adapter. 2: runtime policy selection, a request reaches a selector that reads tenant, flag and config and picks one implementation of the ShippingStrategy contract (Regional, Default or a canary), with a red fallback on error. 3: across service boundaries, Checkout calls the quote(order) contract across a service boundary; the rate-quote service implements it, fans out to carrier strategies and returns the cheapest valid quote, and Checkout falls back to a flat rate when the deadline is hit. 4: pluggable pipeline steps, the Score stage asks an assignment selector that picks by bucket one implementation of the predict(features) contract (Model v1 or Model v2); the model id is logged with the outcome.</desc>
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1 L10 5 L0 9 Z" fill="#3D4650"/></marker>
+<marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1 L10 5 L0 9 Z" fill="#A5222B"/></marker>
+<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#FFFFFF" stroke="#3D4650" stroke-width="1.8" stroke-linejoin="round"/></marker>
+</defs>
+<style>
+.n{font-size:24px;font-weight:700}
+.r{font-size:24px}
+.e{font-size:24px;paint-order:stroke;stroke:#F5F7FA;stroke-width:7px;stroke-linejoin:round}
+.h{font-size:28px;font-weight:700;fill:#FFFFFF}
+.c{font-size:24px;fill:#3D4650}
+.ln{fill:none;stroke:#3D4650;stroke-width:3;stroke-linejoin:round}
+.dash{stroke-dasharray:9 7}
+.red{fill:none;stroke:#A5222B;stroke-width:3;stroke-dasharray:9 7;stroke-linejoin:round}
+</style>
+<rect width="1200" height="1200" fill="#FFFFFF"/>
+
+<text x="600" y="78" text-anchor="middle" font-size="46" font-weight="700">Strategy beyond the class diagram</text>
+<text x="600" y="114" text-anchor="middle" class="c">One stable contract, many implementations, a selector outside the caller</text>
+
+<!-- Panel 1: behind a port -->
+<g transform="translate(32,130)">
+<rect width="558" height="440" rx="18" fill="#F5F7FA"/>
+<path d="M0 18 A18 18 0 0 1 18 0 H540 A18 18 0 0 1 558 18 V52 H0 Z" fill="#1B1F23"/>
+<rect x="1.5" y="1.5" width="555" height="437" rx="17" fill="none" stroke="#1B1F23" stroke-width="3"/>
+<circle cx="36" cy="26" r="17" fill="#FFFFFF"/><text x="36" y="35" text-anchor="middle" font-size="26" font-weight="700">1</text>
+<text x="68" y="36" class="h">Behind a port</text>
+<text x="20" y="84" class="c">Core owns the contract; adapters plug in</text>
+
+<polygon points="363,190 321,262.7 237,262.7 195,190 237,117.3 321,117.3" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5" stroke-linejoin="round"/>
+<text x="279" y="185" text-anchor="middle" class="n">Checkout</text>
+<text x="279" y="214" text-anchor="middle" class="r">use case</text>
+
+<rect x="20" y="166" width="90" height="48" rx="10" fill="#FFFFFF" stroke="#1B1F23" stroke-width="3"/>
+<text x="65" y="198" text-anchor="middle" class="n">Caller</text>
+<path class="ln" d="M110 190 H193" marker-end="url(#ah)"/>
+<text x="151" y="180" text-anchor="middle" class="e">calls</text>
+
+<rect x="442" y="239" width="96" height="48" rx="10" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3.5"/>
+<text x="490" y="271" text-anchor="middle" class="n">Config</text>
+<path class="ln dash" d="M442 263 H322" marker-end="url(#ah)"/>
+<text x="382" y="253" text-anchor="middle" class="e">injects</text>
+
+<path class="ln dash" d="M105 366 V330 H453 V366 M279 366 V292" marker-end="url(#tri)"/>
+<text x="298" y="316" class="e">implements</text>
+<rect x="239" y="237" width="80" height="52" rx="10" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="279" y="271" text-anchor="middle" class="n">Port</text>
+
+<rect x="30" y="366" width="150" height="52" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="105" y="399" text-anchor="middle" class="n">Carrier A</text>
+<rect x="204" y="366" width="150" height="52" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="279" y="399" text-anchor="middle" class="n">Carrier B</text>
+<rect x="378" y="366" width="150" height="52" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="453" y="399" text-anchor="middle" class="n">Test fake</text>
+</g>
+
+<!-- Panel 2: runtime policy selection -->
+<g transform="translate(610,130)">
+<rect width="558" height="440" rx="18" fill="#F5F7FA"/>
+<path d="M0 18 A18 18 0 0 1 18 0 H540 A18 18 0 0 1 558 18 V52 H0 Z" fill="#1B1F23"/>
+<rect x="1.5" y="1.5" width="555" height="437" rx="17" fill="none" stroke="#1B1F23" stroke-width="3"/>
+<circle cx="36" cy="26" r="17" fill="#FFFFFF"/><text x="36" y="35" text-anchor="middle" font-size="26" font-weight="700">2</text>
+<text x="68" y="36" class="h">Runtime policy selection</text>
+<text x="20" y="84" class="c">Tenant, flag or config picks the strategy</text>
+
+<rect x="133" y="100" width="258" height="40" rx="10" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3.5"/>
+<text x="262" y="128" text-anchor="middle" class="n">tenant · flag · config</text>
+<path class="ln dash" d="M262 140 V172" marker-end="url(#ah)"/>
+<text x="274" y="164" class="e">reads</text>
+
+<polygon points="262,174 334,222 262,270 190,222" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5" stroke-linejoin="round"/>
+<text x="262" y="230" text-anchor="middle" class="n">Selector</text>
+
+<rect x="20" y="198" width="110" height="48" rx="10" fill="#FFFFFF" stroke="#1B1F23" stroke-width="3"/>
+<text x="75" y="230" text-anchor="middle" class="n">Request</text>
+<path class="ln" d="M130 222 H188" marker-end="url(#ah)"/>
+<text x="164" y="212" text-anchor="middle" class="e">asks</text>
+
+<rect x="428" y="198" width="110" height="48" rx="10" fill="#F9C5C0" stroke="#A5222B" stroke-width="3.5"/>
+<text x="483" y="230" text-anchor="middle" class="n">Fallback</text>
+<path class="red" d="M334 222 H426" marker-end="url(#ahr)"/>
+<text x="380" y="212" text-anchor="middle" class="e">on error</text>
+
+<path class="ln" d="M262 270 V300" marker-end="url(#ah)"/>
+<text x="274" y="294" class="e">selects one</text>
+<rect x="42" y="302" width="440" height="40" rx="10" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="262" y="330" text-anchor="middle" class="n">ShippingStrategy</text>
+
+<path class="ln dash" d="M119 386 V344" marker-end="url(#tri)"/>
+<path class="ln dash" d="M262 386 V344" marker-end="url(#tri)"/>
+<path class="ln dash" d="M410 386 V344" marker-end="url(#tri)"/>
+<rect x="54" y="386" width="130" height="40" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="119" y="413" text-anchor="middle" class="n">Regional</text>
+<rect x="206" y="386" width="112" height="40" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="262" y="413" text-anchor="middle" class="n">Default</text>
+<rect x="340" y="386" width="140" height="40" rx="10" fill="#FFF1D6" stroke="#B35C0F" stroke-width="3.5" stroke-dasharray="8 5"/>
+<text x="410" y="413" text-anchor="middle" class="n">Canary v2</text>
+</g>
+
+<!-- Panel 3: across service boundaries -->
+<g transform="translate(32,586)">
+<rect width="558" height="440" rx="18" fill="#F5F7FA"/>
+<path d="M0 18 A18 18 0 0 1 18 0 H540 A18 18 0 0 1 558 18 V52 H0 Z" fill="#1B1F23"/>
+<rect x="1.5" y="1.5" width="555" height="437" rx="17" fill="none" stroke="#1B1F23" stroke-width="3"/>
+<circle cx="36" cy="26" r="17" fill="#FFFFFF"/><text x="36" y="35" text-anchor="middle" font-size="26" font-weight="700">3</text>
+<text x="68" y="36" class="h">Across service boundaries</text>
+<text x="20" y="84" class="c">Strategies behind a rate-quote service</text>
+
+<rect x="170" y="104" width="140" height="44" rx="10" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5"/>
+<text x="240" y="134" text-anchor="middle" class="n">Checkout</text>
+<rect x="418" y="104" width="120" height="44" rx="10" fill="#F9C5C0" stroke="#A5222B" stroke-width="3.5"/>
+<text x="478" y="134" text-anchor="middle" class="n">Flat rate</text>
+<path class="red" d="M310 126 H416" marker-end="url(#ahr)"/>
+<text x="363" y="116" text-anchor="middle" class="e">deadline</text>
+
+<path d="M20 210 H538" fill="none" stroke="#7A8794" stroke-width="4" stroke-linecap="round" stroke-dasharray="0.1 9"/>
+<text x="538" y="202" text-anchor="end" class="c">service boundary</text>
+<path class="ln" d="M240 148 V186" marker-end="url(#ah)"/>
+<text x="252" y="176" class="e">calls</text>
+<rect x="160" y="188" width="160" height="44" rx="10" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="240" y="218" text-anchor="middle" class="n">quote(order)</text>
+
+<path class="ln dash" d="M240 276 V234" marker-end="url(#tri)"/>
+<text x="262" y="262" class="e">implements</text>
+<rect x="115" y="276" width="250" height="44" rx="10" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5"/>
+<text x="240" y="306" text-anchor="middle" class="n">Rate-quote service</text>
+
+<path class="ln" d="M240 320 V378" marker-end="url(#ah)"/>
+<path class="ln" d="M240 352 H104 V378" marker-end="url(#ah)"/>
+<path class="ln" d="M240 352 H376 V378" marker-end="url(#ah)"/>
+<text x="252" y="344" class="e">fans out, cheapest wins</text>
+<rect x="44" y="380" width="120" height="44" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="104" y="410" text-anchor="middle" class="n">Carrier A</text>
+<rect x="180" y="380" width="120" height="44" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="240" y="410" text-anchor="middle" class="n">Carrier B</text>
+<rect x="316" y="380" width="120" height="44" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="376" y="410" text-anchor="middle" class="n">Carrier N</text>
+</g>
+
+<!-- Panel 4: pluggable pipeline steps -->
+<g transform="translate(610,586)">
+<rect width="558" height="440" rx="18" fill="#F5F7FA"/>
+<path d="M0 18 A18 18 0 0 1 18 0 H540 A18 18 0 0 1 558 18 V52 H0 Z" fill="#1B1F23"/>
+<rect x="1.5" y="1.5" width="555" height="437" rx="17" fill="none" stroke="#1B1F23" stroke-width="3"/>
+<circle cx="36" cy="26" r="17" fill="#FFFFFF"/><text x="36" y="35" text-anchor="middle" font-size="26" font-weight="700">4</text>
+<text x="68" y="36" class="h">Pluggable pipeline steps</text>
+<text x="20" y="84" class="c">One predict() contract, swappable models</text>
+
+<rect x="20" y="100" width="120" height="68" rx="10" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3.5"/>
+<text x="80" y="142" text-anchor="middle" class="n">Features</text>
+<path class="ln" d="M140 134 H222" marker-end="url(#ah)"/>
+<text x="181" y="124" text-anchor="middle" class="e">feeds</text>
+<rect x="224" y="100" width="110" height="68" rx="10" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5"/>
+<text x="279" y="128" text-anchor="middle" class="n">Score</text>
+<text x="279" y="155" text-anchor="middle" class="r">stage</text>
+<path class="ln" d="M334 134 H396" marker-end="url(#ah)"/>
+<text x="365" y="124" text-anchor="middle" class="e">logs</text>
+<rect x="398" y="100" width="140" height="68" rx="10" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="3.5"/>
+<text x="468" y="128" text-anchor="middle" class="n">Outcome</text>
+<text x="468" y="155" text-anchor="middle" class="r">+ model id</text>
+
+<path class="ln" d="M279 168 V204" marker-end="url(#ah)"/>
+<text x="291" y="194" class="e">asks</text>
+<rect x="199" y="206" width="160" height="44" rx="10" fill="#B8E2B4" stroke="#2F6B35" stroke-width="3.5"/>
+<text x="279" y="236" text-anchor="middle" class="n">Assignment</text>
+
+<path class="ln" d="M279 250 V298" marker-end="url(#ah)"/>
+<text x="291" y="282" class="e">by bucket</text>
+<rect x="70" y="300" width="418" height="40" rx="10" fill="#FDDCB5" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="279" y="328" text-anchor="middle" class="n">predict(features)</text>
+
+<path class="ln dash" d="M144 382 V342" marker-end="url(#tri)"/>
+<path class="ln dash" d="M414 382 V342" marker-end="url(#tri)"/>
+<rect x="69" y="382" width="150" height="44" rx="10" fill="#F7B267" stroke="#B35C0F" stroke-width="3.5"/>
+<text x="144" y="412" text-anchor="middle" class="n">Model v1</text>
+<rect x="339" y="382" width="150" height="44" rx="10" fill="#FFF1D6" stroke="#B35C0F" stroke-width="3.5" stroke-dasharray="8 5"/>
+<text x="414" y="412" text-anchor="middle" class="n">Model v2</text>
+</g>
+
+<!-- Key -->
+<rect x="32" y="1040" width="1136" height="84" rx="12" fill="#FFFFFF" stroke="#9AA5B1" stroke-width="2"/>
+<rect x="75" y="1050" width="34" height="24" rx="6" fill="#B8E2B4" stroke="#2F6B35" stroke-width="2.5"/><text x="119" y="1070" class="r">Context / selector</text>
+<rect x="336" y="1050" width="34" height="24" rx="6" fill="#FDDCB5" stroke="#B35C0F" stroke-width="2.5"/><text x="380" y="1070" class="r">Contract</text>
+<rect x="501" y="1050" width="34" height="24" rx="6" fill="#F7B267" stroke="#B35C0F" stroke-width="2.5"/><text x="545" y="1070" class="r">Concrete</text>
+<rect x="672" y="1050" width="34" height="24" rx="6" fill="#FFF1D6" stroke="#B35C0F" stroke-width="2.5" stroke-dasharray="6 4"/><text x="716" y="1070" class="r">Experiment</text>
+<rect x="868" y="1050" width="34" height="24" rx="6" fill="#BBDDF7" stroke="#1F5FA8" stroke-width="2.5"/><text x="912" y="1070" class="r">Data</text>
+<rect x="993" y="1050" width="34" height="24" rx="6" fill="#F9C5C0" stroke="#A5222B" stroke-width="2.5"/><text x="1037" y="1070" class="r">Fallback</text>
+
+<rect x="163" y="1088" width="34" height="24" rx="6" fill="#FFFFFF" stroke="#1B1F23" stroke-width="2.5"/><text x="207" y="1108" class="r">Caller</text>
+<path class="ln" d="M306 1100 H354" marker-end="url(#ah)"/><text x="366" y="1108" class="r">calls</text>
+<path class="ln dash" d="M450 1100 H496" marker-end="url(#tri)"/><text x="510" y="1108" class="r">implements</text>
+<path class="ln dash" d="M669 1100 H717" marker-end="url(#ah)"/><text x="729" y="1108" class="r">injects / reads</text>
+<path class="red" d="M913 1100 H961" marker-end="url(#ahr)"/><text x="973" y="1108" class="r">failure</text>
+
+<text x="600" y="1158" text-anchor="middle" class="c">github.com/enok/design-pattern-strategy</text>
+</svg>
