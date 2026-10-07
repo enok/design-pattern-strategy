@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant C as Checkout
+    participant Q as Rate-quote service
+    participant A as Carrier A strategy
+    participant B as Carrier B strategy
+    C->>Q: quote(order)
+    par fan out with 800 ms deadline
+        Q->>A: price(order)
+        A-->>Q: 1899 cents
+    and
+        Q->>B: price(order)
+        Note over Q,B: breaker open, call skipped
+    end
+    Q->>Q: pick cheapest valid quote
+    Q-->>C: carrier A, 1899 cents, strategies tried: A, B(skipped)

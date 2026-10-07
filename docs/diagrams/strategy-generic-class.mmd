@@ -1,0 +1,27 @@
+classDiagram
+    direction LR
+    class Client
+    class Context {
+        -strategy : Strategy
+        +setStrategy(strategy : Strategy) void
+        +doWork(input) Result
+    }
+    class Strategy {
+        <<interface>>
+        +execute(input) Result
+    }
+    class ConcreteStrategyA {
+        +execute(input) Result
+    }
+    class ConcreteStrategyB {
+        +execute(input) Result
+    }
+    class ConcreteStrategyC {
+        +execute(input) Result
+    }
+    Client ..> Context : uses
+    Client ..> ConcreteStrategyA : creates
+    Context o-- Strategy : has-a
+    Strategy <|.. ConcreteStrategyA : implements
+    Strategy <|.. ConcreteStrategyB : implements
+    Strategy <|.. ConcreteStrategyC : implements

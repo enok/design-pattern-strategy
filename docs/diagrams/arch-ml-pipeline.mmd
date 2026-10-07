@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph SERVE[Serving]
+        direction LR
+        DATA[Feature data] --> ASSIGN[Experiment assignment]
+        ASSIGN -->|bucket 0| MA[Pricing model v1]
+        ASSIGN -->|bucket 1| MB[Pricing model v2]
+    end
+    subgraph LEARN[Measuring]
+        direction LR
+        PRED[Prediction and model id] --> LOG[Metrics store]
+        LOG --> EVAL[Experiment analysis]
+    end
+    MA --> PRED
+    MB --> PRED
+    EVAL -->|promote or roll back| ASSIGN

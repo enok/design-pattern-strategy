@@ -1,0 +1,12 @@
+# Build outputs
+java/target/
+typescript/dist/
+**/node_modules/
+**/__pycache__/
+*.pyc
+.venv/
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store

@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  java:
+    name: java
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: java
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: java/pom.xml
+      - name: Build and test
+        run: mvn -B -ntp verify
+      - name: Run demo
+        run: java -cp target/classes io.github.enok.patterns.strategy.Demo
+
+  python:
+    # Stable required-check name: 3.12 and 3.13 run sequentially in this one job.
+    name: python
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Test (Python 3.12)
+        run: PYTHONPATH=src python -m unittest discover -s tests -t . -v
+      - name: Demo (Python 3.12)
+        run: PYTHONPATH=src python -m checkout_strategy
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Test (Python 3.13)
+        run: PYTHONPATH=src python -m unittest discover -s tests -t . -v
+      - name: Demo (Python 3.13)
+        run: PYTHONPATH=src python -m checkout_strategy
+
+  javascript:
+    name: javascript
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: javascript
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Test
+        run: node --test
+      - name: Run demo
+        run: node src/demo.js
+
+  typescript:
+    name: typescript
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: typescript
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Run demo
+        run: npm run demo
+
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Docs checker unit tests
+        run: python -m unittest discover -s .github/scripts -p "test_check_docs.py" -v
+      - name: Check links and diagram drift
+        run: python .github/scripts/check_docs.py

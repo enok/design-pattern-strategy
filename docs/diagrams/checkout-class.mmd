@@ -1,0 +1,37 @@
+classDiagram
+    direction LR
+    class Order {
+        +int subtotalCents
+        +int weightGrams
+    }
+    class Checkout {
+        -ShippingStrategy strategy
+        +total(order) int
+        +setShippingStrategy(strategy) void
+    }
+    class ShippingStrategy {
+        <<interface>>
+        +name String
+        +cost(order) int
+    }
+    class StandardShipping {
+        +cost(order) int
+    }
+    class ExpressShipping {
+        +cost(order) int
+    }
+    class StorePickup {
+        +cost(order) int
+    }
+    class FlatRate {
+        <<lambda>>
+        +name String
+        +cost(order) int
+    }
+    Checkout o-- ShippingStrategy : has-a
+    ShippingStrategy <|.. StandardShipping
+    ShippingStrategy <|.. ExpressShipping
+    ShippingStrategy <|.. StorePickup
+    ShippingStrategy <|.. FlatRate
+    Checkout ..> Order : prices
+    ShippingStrategy ..> Order : reads

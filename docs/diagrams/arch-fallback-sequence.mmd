@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant U as Use case
+    participant R as Registry
+    participant N as Candidate strategy
+    participant F as Fallback strategy
+    U->>R: resolve(tenant, region)
+    R-->>U: candidate strategy
+    U->>N: cost(order)
+    N--xU: timeout
+    U->>F: cost(order)
+    F-->>U: 300 cents
+    U->>U: log strategy=fallback reason=timeout
