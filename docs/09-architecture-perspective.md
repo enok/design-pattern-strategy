@@ -6,6 +6,8 @@
 
 The class-level pattern ([01](01-pattern-explanation.md)) swaps an algorithm inside one object. The same idea scales up: a stable core asks a question, and one of several interchangeable answers is chosen elsewhere. This page follows the checkout shipping-cost example ([03](03-application-example.md), [04](04-example-diagram.md)) through four architectural settings. The vocabulary changes (port, adapter, registry, service), but the shape does not: one stable contract, many implementations, a selector outside the caller.
 
+Principle each application realises (details in [06-design-principles.md](06-design-principles.md#architecture-level-correlation)): behind a port, the dependency rule; runtime selection, open/closed and separation of concerns; across services, encapsulating what varies at service scale; pipeline steps, Liskov substitution.
+
 ## 1. Strategy behind a port (hexagonal / clean architecture)
 
 In a hexagonal layout the business core defines the interfaces it needs and the outside world supplies implementations. `ShippingStrategy` from the example becomes a `ShippingRatePort`; each carrier gets an adapter that translates the core's `Order` into that carrier's wire format and back. The checkout use case plays the Context and never learns which carrier it is talking to.

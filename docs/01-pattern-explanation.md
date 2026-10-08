@@ -51,6 +51,8 @@ At runtime the context calls the strategy; the strategy does the work and return
 
 **Favor composition over inheritance.** Instead of getting behavior by being a subclass, an object gets it by holding another object (a has-a relationship). Composition is more flexible: you can assemble behavior from parts, reuse a part in unrelated classes, and exchange it while the program runs. Inheritance is still useful; it is just a heavier, less reversible commitment, so do not reach for it first.
 
+How these three, SOLID and the architecture principles map onto this repo's code, and where each one bends: [06-design-principles.md](06-design-principles.md).
+
 ## When to use it
 
 - Several classes differ only in how they perform one task.
@@ -91,7 +93,7 @@ At runtime the context calls the strategy; the strategy does the work and return
 ## Seen in real libraries
 
 - **JDK:** `java.util.Comparator` passed to `List.sort` or `Collections.sort`. The sorting routine is the context and each comparator is a strategy.
-- **Spring Framework:** `PasswordEncoder` implementations (bcrypt, Argon2, and others) are interchangeable hashing strategies.
+- **Spring Security:** `PasswordEncoder` implementations (bcrypt, Argon2, and others) are interchangeable hashing strategies.
 
 ## Related reading
 
