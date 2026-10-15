@@ -8,13 +8,63 @@ The class-level pattern ([01](01-pattern-explanation.md)) swaps an algorithm ins
 
 Principle each application realises (details in [06-design-principles.md](06-design-principles.md#architecture-level-correlation)): behind a port, the dependency rule; runtime selection, open/closed and separation of concerns; across services, encapsulating what varies at service scale; pipeline steps, Liskov substitution.
 
+## System design view
+
+Seen as a system rather than a class diagram, the shipping-rate design is a checkout core that owns one port, a selector outside the caller that picks a rate policy per request (feature flag first, then region rule, then the default), and a rate-quote service that fans out to carrier adapters under an 800 ms deadline with a circuit breaker per carrier. A flat-rate fallback answers on error or timeout, and every call logs which variant ran. Sections 1 to 3 below explain each part.
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
+flowchart TB
+    subgraph CORE["Checkout core"]
+        CHK(["Checkout use case"])
+        PORT{{"Shipping rate port"}}
+    end
+    STORE[("Flags and rules")]
+    SEL("Policy selector")
+    POLICY("Chosen rate policy")
+    FAN("Rate-quote service")
+    subgraph DL["One 800 ms deadline"]
+        CA("Carrier A adapter")
+        CB("Carrier B adapter")
+    end
+    FALLBACK("Flat-rate fallback")
+    LOG[("Log and metrics")]
+
+    CHK ==> PORT
+    PORT ==> POLICY
+    STORE -.-> SEL
+    SEL -.->|"flag, region, default"| POLICY
+    POLICY ==>|"needs live data"| FAN
+    FAN ==>|"breaker"| CA
+    FAN ==>|"breaker"| CB
+    FAN -.->|"error or timeout"| FALLBACK
+    POLICY -.->|"which policy answered"| LOG
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    class CHK,FAN context;
+    class PORT,SEL strategy;
+    class POLICY,CA,CB concrete;
+    class STORE,LOG data;
+    class FALLBACK danger;
+    style CORE fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
+    style DL fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
+    linkStyle 2,3,8 stroke:#3D4650,stroke-width:2px
+    linkStyle 7 stroke:#A5222B,stroke-width:2px
+```
+
+*Figure 1. System view: the checkout core asks the port it owns, a selector outside it picks the rate policy (flag, region, default), live quotes call carrier adapters under one 800 ms deadline with a breaker per carrier, a flat-rate fallback answers on error or timeout, and the log records which policy answered. Also available as a [PNG](diagrams/sd-shipping-quote-overview.png).*
+
 ## 1. Strategy behind a port (hexagonal / clean architecture)
 
 In a hexagonal layout the business core defines the interfaces it needs and the outside world supplies implementations. `ShippingStrategy` from the example becomes a `ShippingRatePort`; each carrier gets an adapter that translates the core's `Order` into that carrier's wire format and back. The checkout use case plays the Context and never learns which carrier it is talking to.
 
 ![Strategy behind a port: the Checkout core owns the ShippingStrategy port; carrier adapters plug in from outside](diagrams/arch-hexagonal.svg)
 
-*Figure 1. The use case depends only on the port; the composition root injects the adapter chosen by configuration.*
+*Figure 2. The use case depends only on the port; the composition root injects the adapter chosen by configuration.*
 
 **Forces**
 - Carrier APIs change on their own schedule, and the core should not recompile or retest when they do.
@@ -60,7 +110,7 @@ flowchart TB
     class FALLBACK danger;
 ```
 
-*Figure 2. Selection order: feature flag first, then region rule, then the default. Any failure drops to a fallback.*
+*Figure 3. Selection order: feature flag first, then region rule, then the default. Any failure drops to a fallback.*
 
 **Forces**
 - Different tenants or regions legitimately need different rules (taxes, carriers, free-shipping thresholds).
@@ -95,7 +145,7 @@ sequenceDiagram
     end
 ```
 
-*Figure 3. A candidate that times out is replaced by the fallback, and the reason is recorded.*
+*Figure 4. A candidate that times out is replaced by the fallback, and the reason is recorded.*
 
 **Trade-offs**
 - Gain: behavior changes without redeploying the Context; experiments and tenant rules become data.
@@ -132,7 +182,7 @@ sequenceDiagram
     Q-->>-C: carrier A, 1899 cents, strategies tried: A, B(skipped)
 ```
 
-*Figure 4. Fan-out with a shared deadline; the open breaker for Carrier B skips the call instead of waiting.*
+*Figure 5. Fan-out with a shared deadline; the open breaker for Carrier B skips the call instead of waiting.*
 
 **Forces**
 - Quotes depend on remote systems with uneven latency and availability.
@@ -178,7 +228,7 @@ flowchart TB
     style LOOP fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
 ```
 
-*Figure 5. Assignment picks the model; the logged model id lets analysis attribute results to a strategy.*
+*Figure 6. Assignment picks the model; the logged model id lets analysis attribute results to a strategy.*
 
 **Forces**
 - Models are retrained often, and live traffic is the honest test; rollback must be a bucket flip.
