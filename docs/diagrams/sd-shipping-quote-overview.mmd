@@ -1,0 +1,41 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "20px", "background": "#FFFFFF", "primaryColor": "#FFFFFF", "primaryBorderColor": "#1B1F23", "primaryTextColor": "#1B1F23", "secondaryColor": "#FDDCB5", "tertiaryColor": "#F5F7FA", "lineColor": "#3D4650", "textColor": "#1B1F23", "mainBkg": "#FFFFFF", "nodeBorder": "#1B1F23", "clusterBkg": "#F5F7FA", "clusterBorder": "#9AA5B1", "edgeLabelBackground": "#FFFFFF", "noteBkgColor": "#FFF6D6", "noteBorderColor": "#B8860B", "noteTextColor": "#1B1F23", "actorBkg": "#B8E2B4", "actorBorder": "#2F6B35", "actorTextColor": "#1B1F23", "actorLineColor": "#7A8794", "signalColor": "#3D4650", "signalTextColor": "#1B1F23", "labelBoxBkgColor": "#F5F7FA", "labelBoxBorderColor": "#7A8794", "labelTextColor": "#1B1F23", "loopTextColor": "#1B1F23", "activationBkgColor": "#DDEFDB", "activationBorderColor": "#2F6B35", "sequenceNumberColor": "#FFFFFF", "classText": "#1B1F23"}, "flowchart": {"curve": "linear", "nodeSpacing": 50, "rankSpacing": 60, "padding": 16, "htmlLabels": false}, "sequence": {"actorMargin": 50, "messageMargin": 38, "boxMargin": 10, "noteMargin": 10, "mirrorActors": false, "useMaxWidth": false}, "class": {"padding": 12, "htmlLabels": false}, "fontFamily": "Arial, Helvetica, sans-serif"}}%%
+flowchart TB
+    subgraph CORE["Checkout core"]
+        CHK(["Checkout use case"])
+        PORT{{"Shipping rate port"}}
+    end
+    STORE[("Flags and rules")]
+    SEL("Policy selector")
+    POLICY("Chosen rate policy")
+    FAN("Rate-quote service")
+    subgraph DL["One 800 ms deadline"]
+        CA("Carrier A adapter")
+        CB("Carrier B adapter")
+    end
+    FALLBACK("Flat-rate fallback")
+    LOG[("Log and metrics")]
+
+    CHK ==> PORT
+    PORT ==> POLICY
+    STORE -.-> SEL
+    SEL -.->|"flag, region, default"| POLICY
+    POLICY ==>|"needs live data"| FAN
+    FAN ==>|"breaker"| CA
+    FAN ==>|"breaker"| CB
+    FAN -.->|"error or timeout"| FALLBACK
+    POLICY -.->|"which policy answered"| LOG
+
+    classDef context fill:#B8E2B4,stroke:#2F6B35,stroke-width:2.5px,color:#1B1F23
+    classDef strategy fill:#FDDCB5,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef concrete fill:#F7B267,stroke:#B35C0F,stroke-width:2.5px,color:#1B1F23
+    classDef data fill:#BBDDF7,stroke:#1F5FA8,stroke-width:2.5px,color:#1B1F23
+    classDef danger fill:#F9C5C0,stroke:#A5222B,stroke-width:2.5px,color:#1B1F23
+    class CHK,FAN context;
+    class PORT,SEL strategy;
+    class POLICY,CA,CB concrete;
+    class STORE,LOG data;
+    class FALLBACK danger;
+    style CORE fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
+    style DL fill:#F5F7FA,stroke:#7A8794,stroke-width:2px,stroke-dasharray:8 5
+    linkStyle 2,3,8 stroke:#3D4650,stroke-width:2px
+    linkStyle 7 stroke:#A5222B,stroke-width:2px
